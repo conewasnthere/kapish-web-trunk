@@ -1,0 +1,31 @@
+{
+    "private": true,
+    "scripts": {
+        "dev": "npm run development",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
+        "prod": "npm run production",
+        "production": "mix --production"
+    },
+    "devDependencies": {
+        "axios": "^0.21.4",
+        "bootstrap": "^4.6.1",
+        "jquery": "^3.6",
+        "laravel-mix": "^6.0.39",
+        "lodash": "^4.17.19",
+        "popper.js": "^1.16.1",
+        "postcss": "^8.3.11",
+        "resolve-url-loader": "^4.0.0",
+        "sass": "^1.43.4",
+        "sass-loader": "^11.1.1"
+    },
+    "dependencies": {
+        "@erikwatson/snowfall": "^3.0.4",
+        "humanize-duration": "^3.27.1",
+        "jquery.waitforimages": "^2.4.0",
+        "mariadb": "^3.0.2",
+        "three": "^0.135.0"
+    }
+}

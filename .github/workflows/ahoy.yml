@@ -1,0 +1,19 @@
+name: Ahoy
+
+on:
+  push:
+    branches: [ production ]
+
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Webhook
+        uses: distributhor/workflow-webhook@v2.0.2
+        env:
+          webhook_url: "${{ secrets.AHOY_HOSTNAME }}/${{ secrets.AHOY_PAYLOAD }}"
+          webhook_secret: ${{ secrets.AHOY_SECRET }}
+          webhook_type: json
+          silent: true

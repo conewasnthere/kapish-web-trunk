@@ -1,0 +1,90 @@
+version: "3.8"
+services:
+    app:
+        container_name: app
+        build:
+            context: ../
+            dockerfile: ./production/app/Dockerfile
+        volumes:
+            - ../storage:/var/www/html/storage
+        depends_on:
+            - mariadb
+            - redis
+        networks:
+            - tadah
+        env_file:
+            - "../.env"
+        ports:
+            - 127.0.0.1:81:81
+
+    redis:
+        container_name: redis
+        image: redis:alpine
+        command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+        ports:
+            - 10.8.0.1:6379:6379
+        volumes:
+            - ../storage/redis:/var/lib/redis
+        environment:
+            - REDIS_REPLICATION_MODE=master
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+        networks:
+            - tadah
+
+    mariadb:
+        container_name: mariadb
+        image: mariadb
+        restart: always
+        volumes:
+            - ../storage/database/data:/var/lib/mysql
+            - ../storage/database/logs:/var/lib/mysql/mysql-bin
+        ports:
+            - 10.8.0.1:${DB_PORT}:${DB_PORT}
+        expose:
+            - ${DB_PORT}
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - tadah
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
+
+    ghost:
+        container_name: ghost
+        image: ghost:alpine
+        environment:
+          database__client: mysql
+          database__connection__host: mariadb
+          database__connection__user: ${DB_USERNAME}
+          database__connection__password: ${DB_PASSWORD}
+          database__connection__database: ghost
+          url: http://blog.tadah.rocks
+          NODE_ENV: production
+        ports:
+          - 127.0.0.1:2368:2368
+        depends_on:
+          - mariadb
+        volumes:
+          - ../storage/blog:/var/lib/ghost/content
+        networks:
+          - tadah
+
+networks:
+    tadah:
+        driver: bridge
+
+volumes:
+    app:
+        driver: local
+    redis:
+        driver: local
+    mariadb:
+        driver: local
